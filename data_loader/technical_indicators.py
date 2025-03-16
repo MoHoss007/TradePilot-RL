@@ -18,6 +18,12 @@ class IndicatorMixin:
     a list of HourlyStockValue objects.
     """
 
+    def __iter__(self):
+        raise NotImplementedError("Subclasses must implement this method")
+
+    def __next__(self):
+        raise NotImplementedError("Subclasses must implement this method")
+
     def _get_close_series(self) -> pd.Series:
         if not hasattr(self, "data"):
             raise AttributeError(
@@ -26,8 +32,8 @@ class IndicatorMixin:
             )
 
         return pd.Series(
-            data=[hv.close for hv in self.data],
-            index=[hv.timestamp for hv in self.data],
+            data=[hv.close for hv in self],
+            index=[hv.timestamp for hv in self],
             name="close",
         )
 
@@ -40,11 +46,11 @@ class IndicatorMixin:
 
         df = pd.DataFrame(
             {
-                "close": [hv.close for hv in self.data],
-                "high": [hv.high for hv in self.data],
-                "low": [hv.low for hv in self.data],
+                "close": [hv.close for hv in self],
+                "high": [hv.high for hv in self],
+                "low": [hv.low for hv in self],
             },
-            index=[hv.timestamp for hv in self.data],
+            index=[hv.timestamp for hv in self],
         )
         return df
 
@@ -57,7 +63,7 @@ class IndicatorMixin:
         close_series = self._get_close_series()
         sma = close_series.rolling(window=period).mean()
 
-        for i, hv in enumerate(self.data):
+        for i, hv in enumerate(self):
             hv.sma = sma.iloc[i]
 
     def calculate_ema(self, period: int = 20) -> None:
@@ -69,7 +75,7 @@ class IndicatorMixin:
         close_series = self._get_close_series()
         ema = close_series.ewm(span=period, adjust=False).mean()
 
-        for i, hv in enumerate(self.data):
+        for i, hv in enumerate(self):
             hv.ema = ema.iloc[i]
 
     def calculate_pivot_points(self) -> None:
@@ -89,7 +95,7 @@ class IndicatorMixin:
         df["R2"] = df["Pivot"] + (df["R1"] - df["S1"])
         df["S2"] = df["Pivot"] - (df["R1"] - df["S1"])
 
-        for i, hv in enumerate(self.data):
+        for i, hv in enumerate(self):
             hv.pivots = PivotPoints(
                 pivot=float(df["Pivot"].iloc[i]),
                 r1=float(df["R1"].iloc[i]),
@@ -118,7 +124,7 @@ class IndicatorMixin:
 
         rsi = 100 - (100 / (1 + rs))
 
-        for i, hv in enumerate(self.data):
+        for i, hv in enumerate(self):
             hv.rsi = rsi.iloc[i]
 
     def calculate_macd(
@@ -141,5 +147,5 @@ class IndicatorMixin:
         # signal_line = macd_line.ewm(span=signalperiod, adjust=False).mean()
         # histogram = macd_line - signal_line
 
-        for i, hv in enumerate(self.data):
+        for i, hv in enumerate(self):
             hv.macd = macd_line.iloc[i]

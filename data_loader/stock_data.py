@@ -2,7 +2,7 @@ import yfinance as yf
 from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional
-from technical_indicators import IndicatorMixin, PivotPoints
+from data_loader.technical_indicators import IndicatorMixin, PivotPoints
 
 
 @dataclass
@@ -47,15 +47,15 @@ class HourlyStockData(IndicatorMixin):
             progress=False,
         )
 
-        self.data: List[HourlyStockValue] = []
+        self._data: List[HourlyStockValue] = []
 
         if df is None or df.empty:
             return
 
         for timestamp, row in df.iterrows():
-            self.data.append(
+            self._data.append(
                 HourlyStockValue(
-                    timestamp=timestamp.to_pydatetime(),
+                    timestamp=timestamp.to_pydatetime(),  # type: ignore
                     close=float(row["Close"]),
                     high=float(row["High"]),
                     low=float(row["Low"]),
@@ -66,9 +66,15 @@ class HourlyStockData(IndicatorMixin):
         return self
 
     def __next__(self) -> HourlyStockValue:
-        if self._index >= len(self.data):
+        if self._index >= len(self._data):
             raise StopIteration
 
-        value: HourlyStockValue = self.data[self._index]
+        value: HourlyStockValue = self._data[self._index]
         self._index += 1
         return value
+
+    def __getitem__(self, index):
+        return self._data[index]
+
+    def __len__(self):
+        return len(self._data)
