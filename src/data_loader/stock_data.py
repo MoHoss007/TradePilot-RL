@@ -2,7 +2,7 @@ import yfinance as yf
 from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional
-from data_loader.technical_indicators import IndicatorMixin, PivotPoints
+from src.data_loader.technical_indicators import IndicatorMixin, PivotPoints
 
 
 @dataclass
@@ -39,6 +39,15 @@ class HourlyStockData(IndicatorMixin):
         self.interval = "1h"
         self._index: int = 0
 
+        start_date = datetime.strptime(self.start, "%Y-%m-%d")
+        end_date = datetime.strptime(self.end, "%Y-%m-%d")
+        if (datetime.now() - start_date).days > 730 or (
+            datetime.now() - end_date
+        ).days > 730:
+            raise ValueError(
+                "The requested date range must be within the last 730 days."
+            )
+
         df = yf.download(
             self.ticker,
             start=self.start,
@@ -56,9 +65,9 @@ class HourlyStockData(IndicatorMixin):
             self._data.append(
                 HourlyStockValue(
                     timestamp=timestamp.to_pydatetime(),  # type: ignore
-                    close=float(row["Close"]),
-                    high=float(row["High"]),
-                    low=float(row["Low"]),
+                    close=float(row.iloc[0]),  # Close price
+                    high=float(row.iloc[1]),  # High price
+                    low=float(row.iloc[2]),  # Low price
                 )
             )
 
