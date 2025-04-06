@@ -1,20 +1,21 @@
+import argparse
 from typing import List, Tuple, Dict, Any
 from src.environment.trading_env import TradingEnv
 from src.rl_agents.sarsa_agent import SarsaAgent
 
 
 def train_sarsa_trading_env(
-    start_date: str = "2023-06-01",
-    end_date: str = "2024-06-30",
-    ticker: str = "META",
-    window_size: int = 6,
-    n_episodes: int = 200,
-    n_actions: int = 3,
-    include_indicators: bool = False,
-    epsilon: float = 0.1,
-    alpha: float = 0.1,
-    gamma: float = 0.99,
-    save_path: str = "trained_models/trained_sarsa_qtable.pkl",
+    start_date: str,
+    end_date: str,
+    ticker: str,
+    window_size: int,
+    n_episodes: int,
+    n_actions: int,
+    include_indicators: bool,
+    epsilon: float,
+    alpha: float,
+    gamma: float,
+    save_dir: str,
 ) -> None:
     env: TradingEnv = TradingEnv(
         start_date=start_date,
@@ -59,8 +60,65 @@ def train_sarsa_trading_env(
         )
         agent.decay_epsilon()
 
+    save_path = f"{save_dir}/sarsa_{ticker}_{start_date}_to_{end_date}.pkl"
     agent.save_weights(save_path)
 
 
 if __name__ == "__main__":
-    train_sarsa_trading_env(include_indicators=True, n_episodes=200)
+    parser = argparse.ArgumentParser(
+        description="Train SARSA agent on trading environment."
+    )
+    parser.add_argument(
+        "--start_date", type=str, default="2023-06-01", help="Start date for training."
+    )
+    parser.add_argument(
+        "--end_date", type=str, default="2024-06-30", help="End date for training."
+    )
+    parser.add_argument(
+        "--ticker", type=str, default="INTC", help="Stock ticker symbol."
+    )
+    parser.add_argument(
+        "--window_size", type=int, default=6, help="Window size for the environment."
+    )
+    parser.add_argument(
+        "--n_episodes", type=int, default=200, help="Number of episodes for training."
+    )
+    parser.add_argument(
+        "--n_actions", type=int, default=3, help="Number of possible actions."
+    )
+    parser.add_argument(
+        "--include_indicators",
+        action="store_true",
+        help="Include indicators in the environment.",
+    )
+    parser.add_argument(
+        "--epsilon", type=float, default=0.1, help="Exploration rate for the agent."
+    )
+    parser.add_argument(
+        "--alpha", type=float, default=0.1, help="Learning rate for the agent."
+    )
+    parser.add_argument(
+        "--gamma", type=float, default=0.99, help="Discount factor for the agent."
+    )
+    parser.add_argument(
+        "--save_dir",
+        type=str,
+        default="trained_models",
+        help="Directory to save trained models.",
+    )
+
+    args = parser.parse_args()
+
+    train_sarsa_trading_env(
+        start_date=args.start_date,
+        end_date=args.end_date,
+        ticker=args.ticker,
+        window_size=args.window_size,
+        n_episodes=args.n_episodes,
+        n_actions=args.n_actions,
+        include_indicators=args.include_indicators,
+        epsilon=args.epsilon,
+        alpha=args.alpha,
+        gamma=args.gamma,
+        save_dir=args.save_dir,
+    )

@@ -1,3 +1,4 @@
+import argparse
 from src.rl_agents.sarsa_agent import SarsaAgent
 from src.environment.trading_env import TradingEnv
 from typing import List, Dict
@@ -5,13 +6,13 @@ from tests.utils import plot_trading_signals
 
 
 def test_sarsa(
-    start_date: str = "2024-07-01",
-    end_date: str = "2024-12-30",
-    ticker: str = "META",
-    window_size: int = 6,
-    n_actions: int = 3,
-    qtable_path: str = "trained_models/trained_sarsa_qtable.pkl",
-    include_indicators: bool = False,
+    start_date: str,
+    end_date: str,
+    ticker: str,
+    window_size: int,
+    n_actions: int,
+    qtable_path: str,
+    include_indicators: bool,
 ) -> None:
     env = TradingEnv(
         start_date=start_date,
@@ -89,4 +90,59 @@ def test_sarsa(
 
 
 if __name__ == "__main__":
-    test_sarsa(include_indicators=True)
+    parser = argparse.ArgumentParser(
+        description="Test SARSA agent on trading environment."
+    )
+    parser.add_argument(
+        "--start_date",
+        type=str,
+        default="2024-07-01",
+        help="Start date for the trading environment.",
+    )
+    parser.add_argument(
+        "--end_date",
+        type=str,
+        default="2024-12-30",
+        help="End date for the trading environment.",
+    )
+    parser.add_argument(
+        "--ticker",
+        type=str,
+        default="INTC",
+        help="Ticker symbol for the stock.",
+    )
+    parser.add_argument(
+        "--window_size",
+        type=int,
+        default=6,
+        help="Window size for the trading environment.",
+    )
+    parser.add_argument(
+        "--n_actions",
+        type=int,
+        default=3,
+        help="Number of actions for the SARSA agent.",
+    )
+    parser.add_argument(
+        "--qtable_path",
+        type=str,
+        required=True,
+        help="Path to the trained Q-table file.",
+    )
+    parser.add_argument(
+        "--include_indicators",
+        action="store_true",
+        help="Whether to include technical indicators.",
+    )
+
+    args = parser.parse_args()
+
+    test_sarsa(
+        start_date=args.start_date,
+        end_date=args.end_date,
+        ticker=args.ticker,
+        window_size=args.window_size,
+        n_actions=args.n_actions,
+        qtable_path=args.qtable_path,
+        include_indicators=args.include_indicators,
+    )

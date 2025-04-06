@@ -47,7 +47,7 @@ def plot_trading_signals(env: TradingEnv):
 
     plt.xlabel("Time")
     plt.ylabel("Price")
-    plt.title("Stock Price Over Time with Trading Signals")
+    plt.title(f"Stock Price Over Time with Trading Signals for {env.ticker}")
     plt.legend()
     plt.grid(True)
     plt.xticks(rotation=45)
