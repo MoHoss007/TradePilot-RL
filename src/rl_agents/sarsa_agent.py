@@ -37,7 +37,7 @@ class SarsaAgent(BaseAgent):
         Converts state to a tuple if needed.
         """
         if isinstance(state, np.ndarray):
-            state = tuple(state.astype(int))
+            state = tuple(state[0].astype(int))
 
         if np.random.rand() < self.epsilon:
             action = np.random.randint(self.n_actions)

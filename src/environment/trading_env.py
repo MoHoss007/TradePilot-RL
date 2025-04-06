@@ -109,7 +109,8 @@ class TradingEnv(gym.Env):
                 dtype=np.float32,
             )
             state = np.concatenate((state, indicators))
-        return state
+
+        return state.reshape(1, -1)
 
     def reset(
         self,
@@ -149,6 +150,9 @@ class TradingEnv(gym.Env):
                 self.states_sell.append(self.current_step)
             else:
                 reward = 0.0
+        else:  # Hold action.
+            # Applying a small time penalty when holding an inventory to encourage taking action.
+            reward = -0.01 if self.inventory else 0.0
 
         self.current_step += 1
         done = False

@@ -1,47 +1,50 @@
+from typing import List, Tuple, Dict, Any
 from src.environment.trading_env import TradingEnv
 from src.rl_agents.sarsa_agent import SarsaAgent
 
 
 def train_sarsa_trading_env(
-    start_date="2024-01-01",
-    end_date="2024-12-30",
-    ticker="META",
-    window_size=6,
-    n_episodes=200,
-    n_actions=3,
-    include_indicators=False,
-    epsilon=0.1,
-    alpha=0.1,
-    gamma=0.99,
-    save_path="trained_sarsa_qtable.pkl",
-):
-    env = TradingEnv(
+    start_date: str = "2023-06-01",
+    end_date: str = "2024-06-30",
+    ticker: str = "META",
+    window_size: int = 6,
+    n_episodes: int = 200,
+    n_actions: int = 3,
+    include_indicators: bool = False,
+    epsilon: float = 0.1,
+    alpha: float = 0.1,
+    gamma: float = 0.99,
+    save_path: str = "trained_models/trained_sarsa_qtable.pkl",
+) -> None:
+    env: TradingEnv = TradingEnv(
         start_date=start_date,
         end_date=end_date,
         ticker=ticker,
         window_size=window_size,
         include_indicators=include_indicators,
     )
-    agent = SarsaAgent(n_actions=n_actions, epsilon=epsilon, alpha=alpha, gamma=gamma)
+    agent: SarsaAgent = SarsaAgent(
+        n_actions=n_actions, epsilon=epsilon, alpha=alpha, gamma=gamma
+    )
 
     for ep in range(n_episodes):
         state = env.reset()
-        done = False
+        done: bool = False
 
-        action = agent.get_action(state)
+        action: int = agent.get_action(state)
 
-        info = {}
+        info: Dict[str, Any] = {}
 
         while not done:
             next_state, reward, done, truncated, info = env.step(action)
 
             agent.inventory = info.get("inventory", [])
 
-            next_action = agent.get_action(next_state) if not done else 0
+            next_action: int = agent.get_action(next_state) if not done else 0
 
-            state_tuple = tuple(state.astype(int))
-            next_state_tuple = (
-                tuple(next_state.astype(int)) if next_state.size > 0 else tuple()
+            state_tuple: Tuple[int, ...] = tuple(state[0].astype(int))
+            next_state_tuple: Tuple[int, ...] = (
+                tuple(next_state[0].astype(int)) if next_state.size > 0 else tuple()
             )
 
             agent.update(
@@ -60,4 +63,4 @@ def train_sarsa_trading_env(
 
 
 if __name__ == "__main__":
-    train_sarsa_trading_env(include_indicators=False)
+    train_sarsa_trading_env(include_indicators=True, n_episodes=200)
