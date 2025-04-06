@@ -14,7 +14,6 @@ class TradingEnv(gym.Env):
         end_date: str,
         ticker: str,
         window_size: int = 6,  # number of prices to consider (producing window_size-1 differences)
-        tc: float = 0.05 / 100,
         render_mode: Optional[str] = None,
         apply_sigmoid: bool = False,
         include_indicators: bool = False,
@@ -26,7 +25,6 @@ class TradingEnv(gym.Env):
         :param end_date: End date for historical data.
         :param ticker: Stock ticker symbol.
         :param window_size: Number of prices to use (producing window_size-1 differences).
-        :param tc: Transaction cost fraction.
         :param render_mode: Rendering mode (e.g., "human").
         :param apply_sigmoid: Flag to determine if sigmoid should be applied to differences.
         :param include_indicators: Flag to include technical indicators in the state.
@@ -36,7 +34,6 @@ class TradingEnv(gym.Env):
         self.end_date = end_date
         self.ticker = ticker
         self.window_size = window_size
-        self.tc = tc
         self.render_mode = render_mode
         self.apply_sigmoid = apply_sigmoid
         self.include_indicators = include_indicators
